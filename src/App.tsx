@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import {authProvider} from "fbase";
+import Router from "Components/Router";
+import {Link} from "react-router-dom";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [init, setInit] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        authProvider.onAuthStateChanged(authProvider.auth, (user => {
+            if (user) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+            }
+            setInit(true);
+        }));
+    }, [])
+    return (
+        <>
+            {init ? <Router isLoggedIn={isLoggedIn}/> : <>Initializing...</>}
+            <footer>&copy; {new Date().getFullYear()} Gwitter</footer>
+        </>
+    );
 }
 
 export default App;
