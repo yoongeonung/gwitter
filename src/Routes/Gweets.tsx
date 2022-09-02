@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {FormEvent, useState} from 'react';
+import {collection, doc, updateDoc, deleteDoc} from "firebase/firestore";
+import {dbProvider} from "../fbase";
 
 interface GweetsProps {
     gweet: Gweet;
@@ -12,23 +14,40 @@ interface Gweet {
     text: string;
 }
 
-const onDeleteClick = () => {
-
-};
-
-const onEditClick = () => {
-
-};
-
 const Gweets = ({gweet, isOwner}: GweetsProps) => {
+    const [edit, setEdit] = useState(false);
+    const [newGweet, setNewGweet] = useState('');
+    const toggleEdit = () => {
+        setEdit(prev => !prev);
+        setNewGweet(gweet.text);
+    };
+    const onDeleteClick = async () => {
+        await deleteDoc(doc(collection(dbProvider, 'gweets'), gweet.id));
+    };
+    const onChnage = (e: FormEvent<HTMLInputElement>) => {
+        setNewGweet(e.currentTarget.value);
+    }
+    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        await updateDoc(doc(collection(dbProvider, "gweets"), gweet.id), "text", newGweet);
+        toggleEdit();
+    }
     return (
-        <div>
-            {gweet.text}
-            {isOwner && <>
-                <button onClick={onDeleteClick}>Delete</button>
-                <button onClick={onEditClick}>Edit</button>
-            </>}
-        </div>
+        edit ? (
+            <form onSubmit={onSubmit}>
+                <input type={"text"} value={newGweet} onChange={onChnage}/>
+            </form>
+        ) : (
+            <div>
+                {gweet.text}
+                {isOwner && <>
+                    <button onClick={onDeleteClick}>Delete</button>
+                    <button onClick={toggleEdit}>Edit</button>
+                </>}
+            </div>
+        )
+
+
     );
 }
 
