@@ -1,15 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {authProvider} from "fbase";
 import Router from "Components/Router";
-import {Link} from "react-router-dom";
 
 function App() {
     const [init, setInit] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userObj, setUserObj] = useState<any>();
     useEffect(() => {
         authProvider.onAuthStateChanged(authProvider.auth, (user => {
             if (user) {
                 setIsLoggedIn(true);
+                setUserObj(user);
             } else {
                 setIsLoggedIn(false);
             }
@@ -18,7 +19,7 @@ function App() {
     }, [])
     return (
         <>
-            {init ? <Router isLoggedIn={isLoggedIn}/> : <>Initializing...</>}
+            {init ? <Router isLoggedIn={isLoggedIn} userObj={userObj}/> : <>Initializing...</>}
             <footer>&copy; {new Date().getFullYear()} Gwitter</footer>
         </>
     );

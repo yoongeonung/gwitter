@@ -1,18 +1,20 @@
 import React, {FormEvent, useState} from 'react';
-import { authProvider } from 'fbase';
+import {authProvider} from 'fbase';
+import firebase from "firebase/compat";
 
 const Auth = () => {
     const [error, setError] = useState('');
-    const [email,setEmail] = useState('');
+    const [email, setEmail] = useState('');
+    const [user, setUser] = useState();
     const [password, setPassword] = useState('');
     const [isNewUser, setIsNewUser] = useState(false);
     const onEmailChange = (e: FormEvent<HTMLInputElement>) => {
         setEmail(e.currentTarget.value);
     };
-    const onPasswordChange = (e:FormEvent<HTMLInputElement>) => {
+    const onPasswordChange = (e: FormEvent<HTMLInputElement>) => {
         setPassword(e.currentTarget.value);
     }
-    const onSubmit = async (e:FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             if (isNewUser) {
@@ -22,7 +24,7 @@ const Auth = () => {
                 await authProvider.signInWithEmailAndPassword(authProvider.auth, email, password);
                 await authProvider.setPersistence(authProvider.auth, authProvider.browserLocalPersistence);
             }
-        } catch (e:any) {
+        } catch (e: any) {
             setError(e.message);
         }
     }
@@ -39,7 +41,7 @@ const Auth = () => {
             <form onSubmit={onSubmit}>
                 <input type="email" placeholder={'email'} value={email} onChange={onEmailChange}/>
                 <input type="password" placeholder={'password'} onChange={onPasswordChange}/>
-                <input type="submit" value={isNewUser ? 'sing up' : 'login'} />
+                <input type="submit" value={isNewUser ? 'sing up' : 'login'}/>
                 {error ? <p>{error}</p> : ''}
             </form>
             <button onClick={onToggle}>{isNewUser ? 'Sign In' : 'Create New Account'}</button>

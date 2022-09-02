@@ -1,6 +1,6 @@
 # Clone Twitter with Firebase
 
 
-- firebase:
+- firebase: ^web version9.0.0
 - react: ^18.0.0
 - styled-components

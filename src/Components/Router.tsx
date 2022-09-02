@@ -3,12 +3,14 @@ import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import Home from "Routes/Home";
 import Profile from "../Routes/Profile";
 import Auth from "../Routes/Auth";
+import firebase from "firebase/compat";
 
 interface RouterPorps {
     isLoggedIn: boolean;
+    userObj: firebase.User;
 }
 
-const Router = ({isLoggedIn}: RouterPorps) => {
+const Router = ({isLoggedIn, userObj}: RouterPorps) => {
     console.log(isLoggedIn);
     return (
         <BrowserRouter>
@@ -19,7 +21,7 @@ const Router = ({isLoggedIn}: RouterPorps) => {
             <Routes>
                 {isLoggedIn ?
                     <>
-                        <Route element={<Home/>} path={'/'}/>
+                        <Route element={<Home userObj={userObj}/>} path={'/'}/>
                         <Route element={<Profile/>} path={'/profile'}/>
                     </>
                     : <Route element={<Auth/>} path={'/'}/>}
