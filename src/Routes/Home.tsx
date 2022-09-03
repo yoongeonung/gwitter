@@ -20,6 +20,7 @@ interface Gweet {
 const Home = ({userObj}: HomeProps) => {
     const [gweet, setGweet] = useState('');
     const [gweetList, setGweetList] = useState<Gweet[]>();
+    const [attachment, setAttachment] = useState('');
     const onChange = (e: FormEvent<HTMLInputElement>) => {
         setGweet(e.currentTarget.value);
     }
@@ -48,18 +49,45 @@ const Home = ({userObj}: HomeProps) => {
             setGweetList(arr);
         })
     }, []);
+    const onAttachedFiles = (e: FormEvent<HTMLInputElement>) => {
+        const {currentTarget: {files}} = e;
+        if (!files || files.length < 0) {
+            return;
+        }
+        const file = files.item(0);
+        const fileReader = new FileReader();
+        fileReader.onloadend = (e) => {
+            if (!e.target) {
+                return;
+            }
+            const {target: {result}} = e;
+            if (!result) {
+                return;
+            }
+            setAttachment(result.toString());
+        }
+        if (!file) {
+            return;
+        }
+        fileReader.readAsDataURL(file);
+
+
+    }
     return (
         <>
             <form onSubmit={onSubmit}>
                 <input value={gweet} type={"text"} onChange={onChange}/>
+                <input type="file" accept={'image/jpeg, ,image/png'} onChange={onAttachedFiles}/>
+                <button>Gweet!</button>
             </form>
+            {attachment && <img src={attachment} alt="attachmented-image"/> }
             {gweetList?.map(gw => {
                 return <Gweets gweet={gw} isOwner={gw.creatorId === userObj.uid}/>
             })}
 
         </>
 
-    )
+    );
 }
 
 export default Home;

@@ -1,5 +1,5 @@
 import React, {FormEvent, useState} from 'react';
-import {collection, doc, updateDoc, deleteDoc} from "firebase/firestore";
+import {collection, deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {dbProvider} from "../fbase";
 
 interface GweetsProps {
@@ -34,9 +34,11 @@ const Gweets = ({gweet, isOwner}: GweetsProps) => {
     }
     return (
         edit ? (
-            <form onSubmit={onSubmit}>
-                <input type={"text"} value={newGweet} onChange={onChnage}/>
-            </form>
+            <>
+                <form onSubmit={onSubmit}>
+                    <input type={"text"} value={newGweet} onChange={onChnage}/>
+                </form>
+            </>
         ) : (
             <div>
                 {gweet.text}
