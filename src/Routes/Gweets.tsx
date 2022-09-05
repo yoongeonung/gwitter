@@ -12,6 +12,7 @@ interface Gweet {
     createdAt: Date;
     creatorId: string;
     text: string;
+    downloadUrl: string;
 }
 
 const Gweets = ({gweet, isOwner}: GweetsProps) => {
@@ -41,6 +42,9 @@ const Gweets = ({gweet, isOwner}: GweetsProps) => {
             </>
         ) : (
             <div>
+                {gweet.downloadUrl && (
+                    <img src={gweet.downloadUrl} width={50} height={50}/>
+                )}
                 {gweet.text}
                 {isOwner && <>
                     <button onClick={onDeleteClick}>Delete</button>

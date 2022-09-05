@@ -15,12 +15,12 @@ function App() {
             } else {
                 setIsLoggedIn(false);
             }
-            setInit(true);
+            setInit(false);
         }));
     }, [])
     return (
         <>
-            {init ? <Router isLoggedIn={isLoggedIn} userObj={userObj}/> : <>Initializing...</>}
+            {init ? <>Initializing...</> : <Router isLoggedIn={isLoggedIn} userObj={userObj}/>}
             <footer>&copy; {new Date().getFullYear()} Gwitter</footer>
         </>
     );

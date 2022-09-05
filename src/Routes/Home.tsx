@@ -1,8 +1,9 @@
 import React, {FormEvent, useEffect, useState} from 'react';
-import {dbProvider} from "fbase";
-import {addDoc, collection, onSnapshot, orderBy, query} from "firebase/firestore";
+import {dbProvider, storageProvider} from "fbase";
+import {collection, onSnapshot, orderBy, query, addDoc} from "firebase/firestore";
 import firebase from "firebase/compat";
 import Gweets from "./Gweets";
+import {v4 as uuid} from "uuid";
 
 
 interface HomeProps {
@@ -14,6 +15,7 @@ interface Gweet {
     createdAt: Date;
     creatorId: string;
     text: string;
+    downloadUrl: string;
 }
 
 
@@ -26,12 +28,20 @@ const Home = ({userObj}: HomeProps) => {
     }
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        let downloadURL = "";
+        if (attachment) {
+            const uploadResult = await storageProvider.uploadString(storageProvider.ref(storageProvider.getStorage(), `${userObj.uid}/${uuid()}`), attachment, "data_url");
+            downloadURL = await storageProvider.getDownloadURL(uploadResult.ref);
+        }
         await addDoc(collection(dbProvider, "gweets"), {
             text: gweet,
             createdAt: Date.now(),
             creatorId: userObj.uid,
+            downloadURL,
         });
         setGweet("");
+        setAttachment("");
     }
 
     useEffect(() => {
@@ -43,9 +53,9 @@ const Home = ({userObj}: HomeProps) => {
                     createdAt: doc.get('createdAt'),
                     creatorId: doc.get('creatorId'),
                     text: doc.get('text'),
+                    downloadUrl: doc.get('downloadURL'),
                 };
             });
-            console.log(arr);
             setGweetList(arr);
         })
     }, []);
@@ -70,8 +80,6 @@ const Home = ({userObj}: HomeProps) => {
             return;
         }
         fileReader.readAsDataURL(file);
-
-
     }
     return (
         <>
@@ -80,9 +88,9 @@ const Home = ({userObj}: HomeProps) => {
                 <input type="file" accept={'image/jpeg, ,image/png'} onChange={onAttachedFiles}/>
                 <button>Gweet!</button>
             </form>
-            {attachment && <img src={attachment} alt="attachmented-image"/> }
+            {attachment && <img src={attachment} alt="attachmented"/>}
             {gweetList?.map(gw => {
-                return <Gweets gweet={gw} isOwner={gw.creatorId === userObj.uid}/>
+                return <Gweets key={gw.id} gweet={gw} isOwner={gw.creatorId === userObj.uid}/>
             })}
 
         </>
