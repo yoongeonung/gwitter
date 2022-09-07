@@ -1,13 +1,13 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import {dbProvider, storageProvider} from "fbase";
-import {collection, onSnapshot, orderBy, query, addDoc} from "firebase/firestore";
-import firebase from "firebase/compat";
+import {addDoc, collection, onSnapshot, orderBy, query} from "firebase/firestore";
 import Gweets from "./Gweets";
 import {v4 as uuid} from "uuid";
+import {User} from 'firebase/auth';
 
 
 interface HomeProps {
-    userObj: firebase.User;
+    userObj: User;
 }
 
 interface Gweet {
@@ -34,7 +34,7 @@ const Home = ({userObj}: HomeProps) => {
             const uploadResult = await storageProvider.uploadString(storageProvider.ref(storageProvider.getStorage(), `${userObj.uid}/${uuid()}`), attachment, "data_url");
             downloadURL = await storageProvider.getDownloadURL(uploadResult.ref);
         }
-        await addDoc(collection(dbProvider, "gweets"), {
+        await addDoc(collection(dbProvider.getFirestore(), "gweets"), {
             text: gweet,
             createdAt: Date.now(),
             creatorId: userObj.uid,
@@ -42,10 +42,13 @@ const Home = ({userObj}: HomeProps) => {
         });
         setGweet("");
         setAttachment("");
+
+        console.log("gweety", gweet);
+        console.log(attachment);
     }
 
     useEffect(() => {
-        const q = query(collection(dbProvider, 'gweets'), orderBy('createdAt', 'asc'));
+        const q = query(collection(dbProvider.getFirestore(), 'gweets'), orderBy('createdAt', 'asc'));
         onSnapshot(q, snapshot => {
             const arr: Gweet[] = snapshot.docs.map(doc => {
                 return {
@@ -60,17 +63,19 @@ const Home = ({userObj}: HomeProps) => {
         })
     }, []);
     const onAttachedFiles = (e: FormEvent<HTMLInputElement>) => {
-        const {currentTarget: {files}} = e;
-        if (!files || files.length < 0) {
+        let {currentTarget} = e;
+        if (!currentTarget) {
             return;
         }
-        const file = files.item(0);
+        if (!currentTarget.files || currentTarget.files.length < 0) return;
+        const file = currentTarget.files.item(0);
+
         const fileReader = new FileReader();
         fileReader.onloadend = (e) => {
             if (!e.target) {
                 return;
             }
-            const {target: {result}} = e;
+            let {target: {result}} = e;
             if (!result) {
                 return;
             }
@@ -80,19 +85,19 @@ const Home = ({userObj}: HomeProps) => {
             return;
         }
         fileReader.readAsDataURL(file);
+        e.currentTarget.value = "";
     }
     return (
         <>
             <form onSubmit={onSubmit}>
                 <input value={gweet} type={"text"} onChange={onChange}/>
                 <input type="file" accept={'image/jpeg, ,image/png'} onChange={onAttachedFiles}/>
-                <button>Gweet!</button>
+                <button type={'submit'}>Gweet!</button>
             </form>
             {attachment && <img src={attachment} alt="attachmented"/>}
             {gweetList?.map(gw => {
                 return <Gweets key={gw.id} gweet={gw} isOwner={gw.creatorId === userObj.uid}/>
             })}
-
         </>
 
     );

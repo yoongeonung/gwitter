@@ -1,6 +1,6 @@
 import React, {FormEvent, useState} from 'react';
 import {collection, deleteDoc, doc, updateDoc} from "firebase/firestore";
-import {dbProvider} from "../fbase";
+import {dbProvider, storageProvider} from "fbase";
 
 interface GweetsProps {
     gweet: Gweet;
@@ -23,14 +23,15 @@ const Gweets = ({gweet, isOwner}: GweetsProps) => {
         setNewGweet(gweet.text);
     };
     const onDeleteClick = async () => {
-        await deleteDoc(doc(collection(dbProvider, 'gweets'), gweet.id));
+        await deleteDoc(doc(collection(dbProvider.getFirestore(), 'gweets'), gweet.id));
+        await storageProvider.deleteObject(storageProvider.ref(storageProvider.getStorage(), gweet.downloadUrl));
     };
     const onChnage = (e: FormEvent<HTMLInputElement>) => {
         setNewGweet(e.currentTarget.value);
     }
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await updateDoc(doc(collection(dbProvider, "gweets"), gweet.id), "text", newGweet);
+        await updateDoc(doc(collection(dbProvider.getFirestore(), "gweets"), gweet.id), "text", newGweet);
         toggleEdit();
     }
     return (

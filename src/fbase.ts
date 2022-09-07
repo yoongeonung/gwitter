@@ -20,7 +20,7 @@ const firebaseConfig = {
 // Initialize Firebase
 export const fbase = initializeApp(firebaseConfig);
 
-export const dbProvider = fstore.getFirestore();
+export const dbProvider = fstore;
 
 export const storageProvider = fstorage;
 

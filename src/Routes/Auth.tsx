@@ -1,11 +1,9 @@
 import React, {FormEvent, useState} from 'react';
 import {authProvider} from 'fbase';
-import firebase from "firebase/compat";
 
 const Auth = () => {
     const [error, setError] = useState('');
     const [email, setEmail] = useState('');
-    const [user, setUser] = useState();
     const [password, setPassword] = useState('');
     const [isNewUser, setIsNewUser] = useState(false);
     const onEmailChange = (e: FormEvent<HTMLInputElement>) => {
